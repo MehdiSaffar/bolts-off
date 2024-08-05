@@ -41,8 +41,6 @@ export class Plank {
 
     this.body.position.set(this.centerPos.x, this.centerPos.y)
     this.body.rotation = Matter.Vector.angle(this.startPos, this.endPos)
-    // this.body.rotation = Math.atan2(this.endPos.y - this.startPos.y, this.endPos.x - this.startPos.x)
-
   }
 
   isSlotAvailable(hole: Hole, idx: number) {
@@ -52,11 +50,12 @@ export class Plank {
   }
 
   create() {
-    this.rb = Matter.Bodies.rectangle(this.centerPos.x, this.centerPos.y, length, PLANK_THICKNESS, {
+    this.rb = Matter.Bodies.rectangle(this.centerPos.x, this.centerPos.y, this.length, PLANK_THICKNESS, {
       label: 'plank',
       friction: 0,
       collisionFilter: { group: FILLED_GROUP }
     })
+    console.log(this.rb)
     Matter.World.add(game.engine.world, this.rb)
   }
 

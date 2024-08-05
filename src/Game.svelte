@@ -47,13 +47,12 @@
       })
     }
 
-    run() {
-
-      const g = new Pixi.Graphics().setStrokeStyle({color: 'white', width: 2})
+    createGrid() {
+      const g = new Pixi.Graphics().setStrokeStyle({ color: 'white', width: 2 })
       g.position.set(0, 0)
 
       for (let i = 0; i <= this.app.canvas.height / SCREW_RADIUS / 2; i += 1) {
-        const startCoord = i * SCREW_RADIUS *2
+        const startCoord = i * SCREW_RADIUS * 2
 
         // draw the column
         g.moveTo(startCoord, 0)
@@ -66,8 +65,10 @@
       g.endFill()
 
       this.app.stage.addChild(g)
+    }
 
-
+    run() {
+      this.createGrid()
       this.app.ticker.add((time) => {
         Matter.Engine.update(this.engine, time.deltaMS)
         for (const plank of this.planks) {
@@ -164,7 +165,10 @@
         return
       }
 
-      if (event.type === 'dragend') {
+      if (event.type === 'mouseup') {
+        this.currPlank?.create()
+        this.planks.push(this.currPlank!)
+        this.currPlank = null
       }
     }
 
