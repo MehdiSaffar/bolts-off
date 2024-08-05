@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "matter-js": "^0.20.0",
-    "pixi.js": "^8.2.6"
+    "pixi.js": "^8.2.6",
+    "pixijs-grid": "^0.4.1"
   }
 }

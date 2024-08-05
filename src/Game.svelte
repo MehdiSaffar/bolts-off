@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
   import './app.css'
 
+  import { PixiJSGrid } from './lib/Grid'
   import * as Matter from 'matter-js'
   import * as Pixi from 'pixi.js'
   import { Hole } from './lib/Hole'
@@ -15,7 +16,7 @@
 
     selected: Hole | null = null
 
-    mode: 'screw' | 'select' | 'toggle' = 'toggle'
+    mode: 'screw' | 'select' | 'toggle' | 'plank' = 'plank'
 
     holes: Hole[] = []
     planks: Plank[] = []
@@ -47,6 +48,26 @@
     }
 
     run() {
+
+      const g = new Pixi.Graphics().setStrokeStyle({color: 'white', width: 2})
+      g.position.set(0, 0)
+
+      for (let i = 0; i <= this.app.canvas.height / SCREW_RADIUS / 2; i += 1) {
+        const startCoord = i * SCREW_RADIUS *2
+
+        // draw the column
+        g.moveTo(startCoord, 0)
+        g.lineTo(startCoord, this.app.canvas.height)
+
+        // draw the row
+        g.moveTo(0, startCoord)
+        g.lineTo(this.app.canvas.width, startCoord)
+      }
+      g.endFill()
+
+      this.app.stage.addChild(g)
+
+
       this.app.ticker.add((time) => {
         Matter.Engine.update(this.engine, time.deltaMS)
         for (const plank of this.planks) {
@@ -127,6 +148,26 @@
       }
     }
 
+    currPlank: Plank | null = null
+
+    onEditorPlank(event: MouseEvent) {
+      const pos = this.snapToGrid(event.offsetX, event.offsetY)
+
+      if (event.type === 'mousedown') {
+        this.currPlank = new Plank(pos, pos)
+        return
+      }
+
+      if (event.type === 'mousemove' && event.buttons === 1) {
+        if (!this.currPlank) return
+        this.currPlank.setEndPos(pos)
+        return
+      }
+
+      if (event.type === 'dragend') {
+      }
+    }
+
     onMouseUp(event: MouseEvent) {
       if (this.mode === 'toggle') {
         return this.onEditorToggle(event)
@@ -134,14 +175,21 @@
         return this.onEditorScrew(event)
       } else if (this.mode === 'select') {
         return this.onSelect(event)
+      } else if (this.mode === 'plank') {
+        return this.onEditorPlank(event)
       }
     }
 
     onMouseDown(event: MouseEvent) {
-
+      if (this.mode === 'plank') {
+        return this.onEditorPlank(event)
+      }
     }
 
-    onMouseOver(event: MouseEvent) {
+    onMouseMove(event: MouseEvent) {
+      if (this.mode === 'plank') {
+        return this.onEditorPlank(event)
+      }
       // console.log(event.offsetX, event.offsetY)
     }
   }
@@ -170,7 +218,7 @@
   <canvas
     bind:this={canvas}
     on:mouseup={game.onMouseUp.bind(game)}
-    on:mousemove={game.onMouseOver.bind(game)}
+    on:mousemove={game.onMouseMove.bind(game)}
     on:mousedown={game.onMouseDown.bind(game)}
   />
 </main>

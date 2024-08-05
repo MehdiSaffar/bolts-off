@@ -6,13 +6,43 @@ import { game } from '../Game.svelte'
 import type { Hole } from './Hole'
 
 export class Plank {
-  body: Pixi.Graphics
-  length: number
-  // slots: number[]
-  rb: Matter.Body
+  body!: Pixi.Graphics
+  startPos!: Matter.Vector
+  endPos!: Matter.Vector
+  rb!: Matter.Body
+
+  get centerPos() {
+    return Matter.Vector.add(this.startPos, Matter.Vector.mult(Matter.Vector.sub(this.endPos, this.startPos), 0.5))
+  }
 
   get slotsCount() {
     return this.length / SCREW_RADIUS / 2
+  }
+
+  get length() {
+    return Matter.Vector.magnitude(Matter.Vector.sub(this.endPos, this.startPos))
+  }
+
+  setEndPos(pos: Matter.Vector) {
+    console.log('setEndPos', this.startPos, pos)
+    this.endPos = pos
+
+    if (!this.body) {
+      this.body = new Pixi.Graphics()
+    }
+
+    const screenLength = this.length + SCREW_RADIUS*2
+    const screenThickness = PLANK_THICKNESS
+
+    this.body = this.body
+      .clear()
+      .rect(-screenLength/2, -screenThickness/2, screenLength, screenThickness)
+      .fill('rgba(255, 255, 255, 0.5)')
+
+    this.body.position.set(this.centerPos.x, this.centerPos.y)
+    this.body.rotation = Matter.Vector.angle(this.startPos, this.endPos)
+    // this.body.rotation = Math.atan2(this.endPos.y - this.startPos.y, this.endPos.x - this.startPos.x)
+
   }
 
   isSlotAvailable(hole: Hole, idx: number) {
@@ -21,38 +51,37 @@ export class Plank {
     return hole.state === 'empty' && dist <= SCREW_RADIUS / 4
   }
 
-  constructor(x: number, y: number, length: number) {
-    this.length = length
-    // this.slots = slots
-    this.rb = Matter.Bodies.rectangle(x, y, length, PLANK_THICKNESS, {
+  create() {
+    this.rb = Matter.Bodies.rectangle(this.centerPos.x, this.centerPos.y, length, PLANK_THICKNESS, {
       label: 'plank',
       friction: 0,
       collisionFilter: { group: FILLED_GROUP }
     })
     Matter.World.add(game.engine.world, this.rb)
+  }
 
-    this.body = new Pixi.Graphics()
-      .rect(-length / 2, -PLANK_THICKNESS / 2, length, PLANK_THICKNESS)
-      .fill('rgba(255, 255, 255, 0.5)')
-    this.body.position.set(x, y)
-    for (let i = 0; i < this.slotsCount; i++) {
-      const circle = new Pixi.Graphics().circle(0, 0, SCREW_RADIUS * 0.2).fill('green')
-      circle.position.set(this.getLocalSlotPosition(i).x, 0)
-      this.body.addChild(circle)
-    }
+  constructor(startPos: Matter.Vector, endPos: Matter.Vector) {
+    this.startPos = startPos
+    this.setEndPos(endPos)
+
+    // for (let i = 0; i < this.slotsCount; i++) {
+    //   const circle = new Pixi.Graphics().circle(0, 0, SCREW_RADIUS * 0.2).fill('green')
+    //   circle.position.set(this.getLocalSlotPosition(i).x, 0)
+    //   this.body.addChild(circle)
+    // }
     game.app.stage.addChild(this.body)
 
-    game.app.ticker.add(() => {
-      for (let i = 0; i < this.slotsCount; i++) {
-        const hasCloseHole = game.holes.some((hole) => this.isSlotAvailable(hole, i))
-        const child = this.body.getChildAt(i) as Pixi.Graphics
+    // game.app.ticker.add(() => {
+    //   for (let i = 0; i < this.slotsCount; i++) {
+    //     const hasCloseHole = game.holes.some((hole) => this.isSlotAvailable(hole, i))
+    //     const child = this.body.getChildAt(i) as Pixi.Graphics
 
-        child
-          .clear()
-          .circle(0, 0, SCREW_RADIUS * 0.2)
-          .fill(hasCloseHole ? 'green' : 'red')
-      }
-    })
+    //     child
+    //       .clear()
+    //       .circle(0, 0, SCREW_RADIUS * 0.2)
+    //       .fill(hasCloseHole ? 'green' : 'red')
+    //   }
+    // })
   }
 
   getLocalSlotPosition(idx: number) {

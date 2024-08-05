@@ -14,6 +14,9 @@ importers:
       pixi.js:
         specifier: ^8.2.6
         version: 8.2.6
+      pixijs-grid:
+        specifier: ^0.4.1
+        version: 0.4.1
     devDependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.1.1
@@ -531,6 +534,9 @@ packages:
 
   pixi.js@8.2.6:
     resolution: {integrity: sha512-CNfr7CmjIEWJ06e3TBrXBKFpcTPMGUaFdtP4RlMOgNOTkDD6+Bhm728I/EkGAo2vsOVO1YwNFsuORQyD3MngZg==}
+
+  pixijs-grid@0.4.1:
+    resolution: {integrity: sha512-S7qNrqepU37d8XE1+hFrygfOU1z/VC/XkQMf0q6G7ncsXsoBTvh2M0xFmWmA6iP3C4ZSARSA/FWihr5pmS+k1A==}
 
   postcss@8.4.40:
     resolution: {integrity: sha512-YF2kKIUzAofPMpfH6hOi2cGnv/HrUlfucspc7pDyvv7kGdqXrfj8SCl/t8owkEgKEuu8ZcRjSOxFxVLqwChZ2Q==}
@@ -1066,6 +1072,8 @@ snapshots:
       eventemitter3: 5.0.1
       ismobilejs: 1.1.1
       parse-svg-path: 0.1.2
+
+  pixijs-grid@0.4.1: {}
 
   postcss@8.4.40:
     dependencies:
